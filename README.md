@@ -35,4 +35,4 @@ SOFTWARE.
 
 [BEAM]: http://www.erlang.org/
 [Rust]: https://www.rust-lang.org/
-[jorendorff]: https://github.com/jorendorff
+[@jorendorff]: https://github.com/jorendorff
