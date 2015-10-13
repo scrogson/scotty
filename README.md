@@ -2,6 +2,8 @@
 
 > A toy [BEAM] Virtual Machine in [Rust]
 
+[![Build Status](https://travis-ci.org/scrogson/scotty.svg?branch=master)](https://travis-ci.org/scrogson/scotty)
+
 This is just a toy project to help me learn more about the [BEAM], [Rust],
 virtural machines, emulators, interpreters, and compilers.
 
