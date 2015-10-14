@@ -8,22 +8,24 @@ use std::fs::File;
 use byteorder::{ByteOrder, LittleEndian};
 
 // Bytecode instructions
-const OP_LOAD_U8: u8 = 1; // arity: 2 - (value: u64, dest: u8)
-const OP_ADD: u8 = 2; // arity: 3 - (a: u8, b: u8, dest: u8)
-const OP_LT: u8 = 3; // arity: 2 - (a: u8, b: u8, dest: u8)
-const OP_RETURN: u8 = 4; // arity: 1 - (reg: u8)
-const OP_JUMP_TRUE: u8 = 5; // arity
+pub const OP_LOAD_U8: u8 = 1; // arity: 2 - (value: u64, dest: u8)
+pub const OP_ADD: u8 = 2; // arity: 3 - (a: u8, b: u8, dest: u8)
+pub const OP_SUB: u8 = 3; // arity: 3 - (a: u8, b: u8, dest: u8)
+pub const OP_MULT: u8 = 4; // arity: 3 - (a: u8, b: u8, dest: u8)
+pub const OP_LT: u8 = 5; // arity: 2 - (a: u8, b: u8, dest: u8)
+pub const OP_RETURN: u8 = 6; // arity: 1 - (reg: u8)
+pub const OP_JUMP_TRUE: u8 = 7; // arity
 
-fn interpret(code: &[u8]) -> u64 {
+fn interpret(code: &[u8]) -> i64 {
     let mut pc = 0; // "Program counter", the index of the current instruction.
-    let mut regs = [0u64; 256]; // Array of 256 zeros.
+    let mut regs = [0i64; 256]; // Array of 256 zeros.
 
     loop {
         let op = code[pc];
         pc += 1;
         match op {
             OP_LOAD_U8 => {
-                let val = code[pc] as u64;
+                let val = code[pc] as i64;
                 pc += 1;
                 let dest = code[pc] as usize;
                 pc += 1;
@@ -38,6 +40,24 @@ fn interpret(code: &[u8]) -> u64 {
                 pc += 1;
                 regs[dest] = regs[a] + regs[b];
             },
+            OP_SUB => {
+                let a = code[pc] as usize;
+                pc += 1;
+                let b = code[pc] as usize;
+                pc += 1;
+                let dest = code[pc] as usize;
+                pc += 1;
+                regs[dest] = regs[a] - regs[b];
+            },
+            OP_MULT => {
+                let a = code[pc] as usize;
+                pc += 1;
+                let b = code[pc] as usize;
+                pc += 1;
+                let dest = code[pc] as usize;
+                pc += 1;
+                regs[dest] = regs[a] * regs[b];
+            },
             OP_LT => {
                 let a = code[pc] as usize;
                 pc += 1;
@@ -45,7 +65,7 @@ fn interpret(code: &[u8]) -> u64 {
                 pc += 1;
                 let dest = code[pc] as usize;
                 pc += 1;
-                regs[dest] = (regs[a] < regs[b]) as u64;
+                regs[dest] = (regs[a] < regs[b]) as i64;
             },
             OP_RETURN => {
                 let r = code[pc] as usize;
@@ -100,6 +120,39 @@ fn test_op_add() {
     ];
 
     assert_eq!(141, interpret(&code));
+}
+
+#[test]
+fn test_op_sub() {
+    let code1 = [
+        OP_LOAD_U8, 10, 0,
+        OP_LOAD_U8, 8, 1,
+        OP_SUB, 0, 1, 2,
+        OP_RETURN, 2
+    ];
+
+    assert_eq!(2, interpret(&code1));
+
+    let code2 = [
+        OP_LOAD_U8, 8, 0,
+        OP_LOAD_U8, 10, 1,
+        OP_SUB, 0, 1, 2,
+        OP_RETURN, 2
+    ];
+
+    assert_eq!(-2, interpret(&code2));
+}
+
+#[test]
+fn test_op_mult() {
+    let code = [
+        OP_LOAD_U8, 2, 0,
+        OP_LOAD_U8, 4, 1,
+        OP_MULT, 0, 1, 2,
+        OP_RETURN, 2
+    ];
+
+    assert_eq!(8, interpret(&code));
 }
 
 #[test]
