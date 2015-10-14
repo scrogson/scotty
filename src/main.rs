@@ -12,6 +12,7 @@ const OP_LOAD_U8: u8 = 1; // arity: 2 - (value: u64, dest: u8)
 const OP_ADD: u8 = 2; // arity: 3 - (a: u8, b: u8, dest: u8)
 const OP_LT: u8 = 3; // arity: 2 - (a: u8, b: u8, dest: u8)
 const OP_RETURN: u8 = 4; // arity: 1 - (reg: u8)
+const OP_JUMP_TRUE: u8 = 5; // arity
 
 fn interpret(code: &[u8]) -> u64 {
     let mut pc = 0; // "Program counter", the index of the current instruction.
@@ -49,6 +50,17 @@ fn interpret(code: &[u8]) -> u64 {
             OP_RETURN => {
                 let r = code[pc] as usize;
                 return regs[r];
+            },
+            OP_JUMP_TRUE => {
+                let r = code[pc] as usize;
+                if regs[r] == 1 {
+                    pc += 1;
+                    let jump_size = LittleEndian::read_i32(&code[pc..pc + 4]);
+                    pc += 4;
+                    pc = pc.wrapping_add(jump_size as usize);
+                } else {
+                    pc += 5;
+                }
             },
             _ => panic!("Invalid opcode at offset {}", pc)
         }
@@ -109,4 +121,29 @@ fn test_op_lt() {
     ];
 
     assert_eq!(1, interpret(&code2));
+}
+
+#[test]
+fn test_loop() {
+    let code = [
+        // Some bytecode to multiply two numbers.
+        OP_LOAD_U8, 6, 0,  // load the number 6 into R0 (`X`, the first number to multiply)
+        OP_LOAD_U8, 8, 1,  // load the number 8 into R1 (`Y`, the second number to multiply)
+        OP_LOAD_U8, 0, 2,  // load the number 0 into R2 (`i`, the loop counter)
+        OP_LOAD_U8, 0, 3,  // load the number 0 into R3 (`acc`, the accumulator)
+        OP_LOAD_U8, 1, 4,  // load the number 1 into R4 - it stays there forever
+
+        // for (int i = 0; i < x; i++) {
+        //   acc += y;
+        // }
+
+        OP_ADD, 1, 3, 3,   // add R1 to R3, store the result in R3
+        OP_ADD, 2, 4, 2,   // increment R2 by 1 (because the value in R4 is 1)
+        OP_LT, 2, 0, 5,    // is R2 < R0?
+        OP_JUMP_TRUE, 5, 0xee, 0xff, 0xff, 0xff, // if so, jump back 18 bytes
+
+        OP_RETURN, 3,      // return contents of R3 (`acc`)
+    ];
+
+    assert_eq!(48, interpret(&code));
 }
