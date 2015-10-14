@@ -2,3 +2,6 @@
 name = "scotty"
 version = "0.1.0"
 authors = ["Sonny Scroggin <scrogson@gmail.com>"]
+
+[dependencies]
+byteorder = "0.3.13"

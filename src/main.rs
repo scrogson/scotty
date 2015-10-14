@@ -1,8 +1,11 @@
 #![allow(dead_code)]
+extern crate byteorder;
+
 use std::env;
 use std::io::Read;
 use std::io::Result;
 use std::fs::File;
+use byteorder::{ByteOrder, LittleEndian};
 
 // Bytecode instructions
 const OP_LOAD: u8 = 1; // arity: 2 - (value: u64, dest: u8)
