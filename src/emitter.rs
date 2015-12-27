@@ -39,18 +39,42 @@ fn int_literal(n: u8) -> Box<Program> {
     Box::new(Program::IntLiteral(n))
 }
 
+fn binary_add(a: u8, b: u8) -> Box<Program> {
+    let program = Program::Binary{
+        op: OP_ADD,
+        left: int_literal(a),
+        right: int_literal(b)
+    };
+    Box::new(program)
+}
+
 #[test]
-fn test_emit() {
+fn test_emit_int_literal() {
     let code1 = emit(&Program::IntLiteral(37));
     assert_eq!(37, interpret(&code1));
+}
 
+#[test]
+fn test_emit_simple_binary_op() {
     let program = Program::Binary {
         op: OP_ADD,
         left: int_literal(73),
         right: int_literal(68)
     };
 
-    let code2 = emit(&program);
-    println!("{:?}", code2);
-    assert_eq!(141, interpret(&code2));
+    let code = emit(&program);
+    assert_eq!(141, interpret(&code));
+}
+
+#[test]
+fn test_emit_nested_binary_op() {
+    // 73 + 68 + 50 = 191
+    let program = Program::Binary {
+        op: OP_ADD,
+        left: binary_add(73, 68),
+        right: int_literal(50)
+    };
+
+    let code = emit(&program);
+    assert_eq!(191, interpret(&code));
 }
