@@ -80,7 +80,7 @@ pub fn interpret(code: &[u8]) -> i64 {
                     pc += 5;
                 }
             },
-            _ => panic!("Invalid opcode at offset {}", pc)
+            _ => panic!("Invalid opcode at offset {}", pc - 1)
         }
     }
 }
@@ -97,11 +97,12 @@ fn main() {
 
     println!("{:?} args: {:?}", args.len() - 1, &args[1..]);
 
+    // [1, 73, 0, 1, 68, 1, 2, 0, 1, 2, 6, 2]
     let code = [
         OP_LOAD_U8, 73, 0, // load the number 73 into R0.
         OP_LOAD_U8, 68, 1, // load the number 68 into R1.
         OP_ADD, 0, 1, 2, // compute R0 + R1 and store it in R2.
-        OP_RETURN, 2
+        OP_RETURN, 2 // return the value stored in R2.
     ];
 
     // should print 73 + 68, which is 141.
