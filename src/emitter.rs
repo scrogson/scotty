@@ -1,7 +1,7 @@
 use interpreter::*;
 
 pub enum Program {
-    IntLiteral(u8),
+    Integer(u8),
     Binary {op: u8, left: Box<Program>, right: Box<Program>}
 }
 
@@ -15,7 +15,7 @@ pub fn emit(program: &Program) -> Vec<u8> {
 
 fn emit_into(code: &mut Vec<u8>, program: &Program, target: u8) {
     match *program {
-        Program::IntLiteral(n) => {
+        Program::Integer(n) => {
             load_u8(code, n, target)
         },
         Program::Binary {op, ref left, ref right} => {
@@ -35,31 +35,36 @@ fn load_u8(code: &mut Vec<u8>, value: u8, dest: u8) {
     code.push(dest);
 }
 
-fn int_literal(n: u8) -> Box<Program> {
-    Box::new(Program::IntLiteral(n))
+fn int(n: u8) -> Box<Program> {
+    Box::new(Program::Integer(n))
 }
 
-fn binary_add(a: u8, b: u8) -> Box<Program> {
-    let program = Program::Binary{
+fn add(left: Box<Program>, right: Box<Program>) -> Box<Program> {
+    let program = Program::Binary {
         op: OP_ADD,
-        left: int_literal(a),
-        right: int_literal(b)
+        left: left,
+        right: right
     };
     Box::new(program)
 }
 
 #[test]
-fn test_emit_int_literal() {
-    let code1 = emit(&Program::IntLiteral(37));
-    assert_eq!(37, interpret(&code1));
+fn test_emit_integer() {
+    let code = emit(&Program::Integer(37));
+    assert_eq!(37, interpret(&code));
+
+    let code1 = emit(&int(56));
+    assert_eq!(56, interpret(&code1));
+
+    assert_eq!(73, interpret(&emit(&int(73))));
 }
 
 #[test]
 fn test_emit_simple_binary_op() {
     let program = Program::Binary {
         op: OP_ADD,
-        left: int_literal(73),
-        right: int_literal(68)
+        left: int(73),
+        right: int(68)
     };
 
     let code = emit(&program);
@@ -71,8 +76,8 @@ fn test_emit_nested_binary_op() {
     // (73 + 68) + 50 = 191
     let program0 = Program::Binary {
         op: OP_ADD,
-        left: binary_add(73, 68),
-        right: int_literal(50)
+        left: add(int(73), int(68)),
+        right: int(50)
     };
 
     let code0 = emit(&program0);
@@ -81,11 +86,18 @@ fn test_emit_nested_binary_op() {
     // 1 + (2 + 3) = 6
     let program1 = Program::Binary {
         op: OP_ADD,
-        left: int_literal(1),
-        right: binary_add(2, 3)
+        left: int(1),
+        right: add(int(2), int(3))
     };
 
     let code1 = emit(&program1);
     assert_eq!(6, interpret(&code1));
 }
 
+#[test]
+fn test_emit_deep_nested_binary_op() {
+    // (1 + (2 + (3 + (4 + 5))))
+    let program = add(int(1), add(int(2), add(int(3), add(int(4), int(5)))));
+    let code = emit(&program);
+    assert_eq!(15, interpret(&code));
+}
