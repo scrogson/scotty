@@ -19,11 +19,11 @@ fn emit_into(code: &mut Vec<u8>, program: &Program, target: u8) {
             load_u8(code, n, target)
         },
         Program::Binary {op, ref left, ref right} => {
-            emit_into(code, &*left, 1);
-            emit_into(code, &*right, 2);
+            emit_into(code, &*left, target);
+            emit_into(code, &*right, target + 1);
             code.push(op);
-            code.push(1);
-            code.push(2);
+            code.push(target);
+            code.push(target + 1);
             code.push(target);
         }
     }
@@ -68,13 +68,24 @@ fn test_emit_simple_binary_op() {
 
 #[test]
 fn test_emit_nested_binary_op() {
-    // 73 + 68 + 50 = 191
-    let program = Program::Binary {
+    // (73 + 68) + 50 = 191
+    let program0 = Program::Binary {
         op: OP_ADD,
         left: binary_add(73, 68),
         right: int_literal(50)
     };
 
-    let code = emit(&program);
-    assert_eq!(191, interpret(&code));
+    let code0 = emit(&program0);
+    assert_eq!(191, interpret(&code0));
+
+    // 1 + (2 + 3) = 6
+    let program1 = Program::Binary {
+        op: OP_ADD,
+        left: int_literal(1),
+        right: binary_add(2, 3)
+    };
+
+    let code1 = emit(&program1);
+    assert_eq!(6, interpret(&code1));
 }
+
