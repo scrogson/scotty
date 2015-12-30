@@ -2,7 +2,8 @@ use interpreter::*;
 
 pub enum Program {
     Integer(u8),
-    Binary {op: u8, left: Box<Program>, right: Box<Program>}
+    Binary {op: u8, left: Box<Program>, right: Box<Program>},
+    Print(Box<Program>)
 }
 
 pub fn emit(program: &Program) -> Vec<u8> {
@@ -25,6 +26,10 @@ fn emit_into(code: &mut Vec<u8>, program: &Program, target: u8) {
             code.push(target);
             code.push(target + 1);
             code.push(target);
+        },
+        Program::Print(ref program) => {
+            emit_into(code, &*program, target);
+            code.push(OP_PRINT);
         }
     }
 }
@@ -100,4 +105,10 @@ fn test_emit_deep_nested_binary_op() {
     let program = add(int(1), add(int(2), add(int(3), add(int(4), int(5)))));
     let code = emit(&program);
     assert_eq!(15, interpret(&code));
+}
+
+#[test]
+fn test_emit_print() {
+    assert_eq!(7, interpret(&emit(&Program::Print(add(int(3), int(4))))));
+    assert_eq!(7, interpret(&emit(&Program::Integer(7))));
 }

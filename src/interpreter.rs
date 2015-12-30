@@ -13,6 +13,7 @@ pub const OP_MULT: u8 = 4; // arity: 3 - (a: u8, b: u8, dest: u8)
 pub const OP_LT: u8 = 5; // arity: 2 - (a: u8, b: u8, dest: u8)
 pub const OP_RETURN: u8 = 6; // arity: 1 - (reg: u8)
 pub const OP_JUMP_TRUE: u8 = 7; // arity
+pub const OP_PRINT: u8 = 8; // arity: 1 - (reg: u8)
 
 pub fn interpret(code: &[u8]) -> i64 {
     let mut pc = 0; // "Program counter", the index of the current instruction.
@@ -80,6 +81,10 @@ pub fn interpret(code: &[u8]) -> i64 {
                     pc += 5;
                 }
             },
+            OP_PRINT => {
+                let r = code[pc] as usize;
+                println!("{:?}", regs[r]);
+            }
             _ => panic!("Invalid opcode at offset {}", pc - 1)
         }
     }
