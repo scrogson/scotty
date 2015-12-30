@@ -110,5 +110,5 @@ fn test_emit_deep_nested_binary_op() {
 #[test]
 fn test_emit_print() {
     assert_eq!(7, interpret(&emit(&Program::Print(add(int(3), int(4))))));
-    assert_eq!(7, interpret(&emit(&Program::Integer(7))));
+    assert_eq!(7, interpret(&emit(&Program::Print(int(7)))));
 }
