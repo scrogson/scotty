@@ -1,3 +1,6 @@
+use term::Term;
+use term::Atom::{Nil, True, False};
+use vm::opcode::*;
 use interpreter::*;
 
 #[test]
@@ -9,7 +12,7 @@ fn test_op_add() {
         OP_RETURN, 2
     ];
 
-    assert_eq!(141, interpret(&code));
+    assert_eq!(interpret(&code), Ok(Term::Integer(141)));
 }
 
 #[test]
@@ -21,7 +24,7 @@ fn test_op_sub() {
         OP_RETURN, 2
     ];
 
-    assert_eq!(2, interpret(&code1));
+    assert_eq!(interpret(&code1), Ok(Term::Integer(2)));
 
     let code2 = [
         OP_LOAD_U8, 8, 0,
@@ -30,7 +33,7 @@ fn test_op_sub() {
         OP_RETURN, 2
     ];
 
-    assert_eq!(-2, interpret(&code2));
+    assert_eq!(interpret(&code2), Ok(Term::Integer(-2)));
 }
 
 #[test]
@@ -42,7 +45,7 @@ fn test_op_mult() {
         OP_RETURN, 2
     ];
 
-    assert_eq!(8, interpret(&code));
+    assert_eq!(interpret(&code), Ok(Term::Integer(8)));
 }
 
 #[test]
@@ -54,7 +57,7 @@ fn test_op_lt() {
         OP_RETURN, 2
     ];
 
-    assert_eq!(0, interpret(&code1));
+    assert_eq!(interpret(&code1), Ok(Term::Atom(False)));
 
     let code2 = [
         OP_LOAD_U8, 68, 0,
@@ -63,7 +66,7 @@ fn test_op_lt() {
         OP_RETURN, 2
     ];
 
-    assert_eq!(1, interpret(&code2));
+    assert_eq!(interpret(&code2), Ok(Term::Atom(True)));
 }
 
 #[test]
@@ -88,5 +91,5 @@ fn test_loop() {
         OP_RETURN, 3,      // return contents of R3 (`acc`)
     ];
 
-    assert_eq!(48, interpret(&code));
+    assert_eq!(interpret(&code), Ok(Term::Integer(48)));
 }
