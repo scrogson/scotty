@@ -11,7 +11,7 @@ pub enum Program {
 pub fn emit(program: &Program) -> Vec<u8> {
     let mut code = vec![];
     emit_into(&mut code, program, 0);
-    code.push(OP_RETURN);
+    code.push(OpCode::Return as u8);
     code.push(0);
     code
 }
@@ -31,13 +31,13 @@ fn emit_into(code: &mut Vec<u8>, program: &Program, target: u8) {
         },
         Program::Print(ref program) => {
             emit_into(code, &*program, target);
-            code.push(OP_PRINT);
+            code.push(OpCode::Print as u8);
         }
     }
 }
 
 fn load_u8(code: &mut Vec<u8>, value: u8, dest: u8) {
-    code.push(OP_LOAD_U8);
+    code.push(OpCode::LoadU8 as u8);
     code.push(value);
     code.push(dest);
 }
@@ -48,7 +48,7 @@ fn int(n: u8) -> Box<Program> {
 
 fn add(left: Box<Program>, right: Box<Program>) -> Box<Program> {
     let program = Program::Binary {
-        op: OP_ADD,
+        op: OpCode::Add as u8,
         left: left,
         right: right
     };
@@ -69,7 +69,7 @@ fn test_emit_integer() {
 #[test]
 fn test_emit_simple_binary_op() {
     let program = Program::Binary {
-        op: OP_ADD,
+        op: OpCode::Add as u8,
         left: int(73),
         right: int(68)
     };
@@ -82,7 +82,7 @@ fn test_emit_simple_binary_op() {
 fn test_emit_nested_binary_op() {
     // (73 + 68) + 50 = 191
     let program0 = Program::Binary {
-        op: OP_ADD,
+        op: OpCode::Add as u8,
         left: add(int(73), int(68)),
         right: int(50)
     };
@@ -92,7 +92,7 @@ fn test_emit_nested_binary_op() {
 
     // 1 + (2 + 3) = 6
     let program1 = Program::Binary {
-        op: OP_ADD,
+        op: OpCode::Add as u8,
         left: int(1),
         right: add(int(2), int(3))
     };

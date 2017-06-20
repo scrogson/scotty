@@ -1,7 +1,8 @@
 [package]
+authors = ["Sonny Scroggin <scrogson@gmail.com>"]
 name = "scotty"
 version = "0.1.0"
-authors = ["Sonny Scroggin <scrogson@gmail.com>"]
 
 [dependencies]
 byteorder = "0.3.13"
+enum_primitive = "0.1.1"

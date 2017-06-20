@@ -1,25 +1,13 @@
-pub type Instruction = u8;
-
-// arity: 2 - (value: u64, dest: u8)
-pub const OP_LOAD_U8: Instruction = 1;
-
-// arity: 3 - (a: u8, b: u8, dest: u8)
-pub const OP_ADD: Instruction = 2;
-
-// arity: 3 - (a: u8, b: u8, dest: u8)
-pub const OP_SUB: Instruction = 3;
-
-// arity: 3 - (a: u8, b: u8, dest: u8)
-pub const OP_MULT: Instruction = 4;
-
-// arity: 2 - (a: u8, b: u8, dest: u8)
-pub const OP_LT: Instruction = 5;
-
-// arity: 1 - (reg: u8)
-pub const OP_RETURN: Instruction = 6;
-
-// arity
-pub const OP_JUMP_TRUE: Instruction = 7;
-
-// arity: 1 - (reg: u8)
-pub const OP_PRINT: Instruction = 8;
+enum_from_primitive! {
+    #[derive(Debug, PartialEq)]
+    pub enum OpCode {
+        LoadU8 = 1,   // arity: 2 - (value: u64, dest: u8)
+        Add = 2,      // arity: 3 - (a: u8, b: u8, dest: u8)
+        Sub = 3,      // arity: 3 - (a: u8, b: u8, dest: u8)
+        Mult = 4,     // arity: 3 - (a: u8, b: u8, dest: u8)
+        LessThan = 5, // arity: 2 - (a: u8, b: u8, dest: u8)
+        Return = 6,   // arity: 1 - (reg: u8)
+        JumpTrue = 7, // arity
+        Print = 8,    // arity: 1 - (reg: u8)
+    }
+}

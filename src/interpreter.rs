@@ -32,25 +32,27 @@ pub fn interpret(code: &[u8]) -> Result<Term, String> {
     }
 
     loop {
+        use enum_primitive::FromPrimitive;
+
         let op = code[pc];
         pc += 1;
-        match op {
-            OP_LOAD_U8 => {
+        match OpCode::from_u8(op) {
+            Some(OpCode::LoadU8) => {
                 let val = Term::Integer(code[pc] as i64);
                 pc += 1;
                 let dest = code[pc] as usize;
                 pc += 1;
                 regs[dest] = val;
             },
-            OP_ADD => arith!(a, b, Term::Integer(a + b)),
-            OP_SUB => arith!(a, b, Term::Integer(a - b)),
-            OP_MULT => arith!(a, b, Term::Integer(a * b)),
-            OP_LT => arith!(a, b, if a < b { Term::Atom(True) } else { Term::Atom(False) } ),
-            OP_RETURN => {
+            Some(OpCode::Add) => arith!(a, b, Term::Integer(a + b)),
+            Some(OpCode::Sub) => arith!(a, b, Term::Integer(a - b)),
+            Some(OpCode::Mult) => arith!(a, b, Term::Integer(a * b)),
+            Some(OpCode::LessThan) => arith!(a, b, if a < b { Term::Atom(True) } else { Term::Atom(False) } ),
+            Some(OpCode::Return) => {
                 let r = code[pc] as usize;
                 return Ok(regs[r].clone());
             },
-            OP_JUMP_TRUE => {
+            Some(OpCode::JumpTrue) => {
                 let r = code[pc] as usize;
                 if regs[r] == Term::Atom(True) {
                     pc += 1;
@@ -61,11 +63,11 @@ pub fn interpret(code: &[u8]) -> Result<Term, String> {
                     pc += 5;
                 }
             },
-            OP_PRINT => {
+            Some(OpCode::Print) => {
                 let r = code[pc] as usize;
                 println!("{:?}", regs[r]);
             }
-            _ => return Err(format!("Invalid opcode at offset {:?}", pc - 1))
+            None => return Err(format!("Invalid opcode at offset {:?}", pc - 1))
         }
     }
 }
