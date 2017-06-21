@@ -73,22 +73,28 @@ fn test_op_lt() {
 fn test_loop() {
     let code = [
         // Some bytecode to multiply two numbers.
-        LoadU8 as u8, 6, 0,  // load the number 6 into R0 (`X`, the first number to multiply)
-        LoadU8 as u8, 8, 1,  // load the number 8 into R1 (`Y`, the second number to multiply)
-        LoadU8 as u8, 0, 2,  // load the number 0 into R2 (`i`, the loop counter)
-        LoadU8 as u8, 0, 3,  // load the number 0 into R3 (`acc`, the accumulator)
-        LoadU8 as u8, 1, 4,  // load the number 1 into R4 - it stays there forever
-
-        // for (int i = 0; i < x; i++) {
+        //
+        // x = 6;
+        // y = 8;
+        // acc = 0;
+        //
+        // for (i = 0; i < x; i++) {
         //   acc += y;
         // }
+        //
+        // return acc;
 
-        Add as u8, 1, 3, 3,   // add R1 to R3, store the result in R3
-        Add as u8, 2, 4, 2,   // increment R2 by 1 (because the value in R4 is 1)
-        LessThan as u8, 2, 0, 5,    // is R2 < R0?
+        LoadU8 as u8, 6, 0, // load the number 6 into R0 (`X`, the first number to multiply)
+        LoadU8 as u8, 8, 1, // load the number 8 into R1 (`Y`, the second number to multiply)
+        LoadU8 as u8, 0, 2, // load the number 0 into R2 (`i`, the loop counter)
+        LoadU8 as u8, 0, 3, // load the number 0 into R3 (`acc`, the accumulator)
+        LoadU8 as u8, 1, 4, // load the number 1 into R4 - it stays there forever
+        Add as u8, 1, 3, 3, // add R1 to R3, store the result in R3
+        Add as u8, 2, 4, 2, // increment R2 by 1 (because the value in R4 is 1)
+        LessThan as u8, 2, 0, 5, // is R2 < R0?
         JumpTrue as u8, 5, 0xee, 0xff, 0xff, 0xff, // if so, jump back 18 bytes
 
-        Return as u8, 3,      // return contents of R3 (`acc`)
+        Return as u8, 3, // return contents of R3 (`acc`)
     ];
 
     assert_eq!(interpret(&code), Ok(Term::Integer(48)));
