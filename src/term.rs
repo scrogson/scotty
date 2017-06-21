@@ -10,4 +10,5 @@ pub enum Atom {
 pub enum Term {
     Atom(Atom),
     Integer(i64),
+    Float(f64),
 }
