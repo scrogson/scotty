@@ -7,4 +7,6 @@ pub mod emitter;
 pub mod interpreter;
 pub mod term;
 pub mod vm;
-pub mod tests;
+
+#[cfg(test)]
+mod tests;
