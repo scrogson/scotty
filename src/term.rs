@@ -3,6 +3,7 @@ pub enum Atom {
     Nil,
     True,
     False,
+    UserDefined(String)
 }
 
 #[derive(Clone, Debug, PartialEq)]
