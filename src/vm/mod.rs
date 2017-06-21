@@ -1,6 +1,17 @@
 pub mod opcode;
-//use self::fun;
 
-//pub struct VM {
-    //funs: fun::Table,
-//}
+pub struct VM {
+
+}
+
+impl VM {
+    pub fn new() -> Self {
+        VM {
+
+        }
+    }
+
+    pub fn start(self) {
+        loop {}
+    }
+}
